@@ -3,8 +3,9 @@ using Bulky.DataAccess.Repository.IRepository;
 using Bulky.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BulkyWeb.Controllers
+namespace BulkyWeb.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     public class CategoryController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -38,7 +39,7 @@ namespace BulkyWeb.Controllers
                 _unitOfWork.Category.Add(obj);
                 _unitOfWork.Save();
                 TempData["success"] = "Category created successfully";
-                return RedirectToAction("Index"); 
+                return RedirectToAction("Index");
             }
             return View();
         }
@@ -63,7 +64,7 @@ namespace BulkyWeb.Controllers
         }
         [HttpPost]
         public IActionResult Edit(Category obj)
-        {            
+        {
             if (ModelState.IsValid)
             {
                 _unitOfWork.Category.Update(obj);
@@ -80,7 +81,7 @@ namespace BulkyWeb.Controllers
             {
                 return NotFound();
             }
-            Category? categoryFromDb = _unitOfWork.Category.Get(x =>x.Id == id);
+            Category? categoryFromDb = _unitOfWork.Category.Get(x => x.Id == id);
             //_db.Categories.Find(id);//can be use only for finding by primary key
 
             //Category? categoryFromDb2 = _db.Categories.FirstOrDefault(obj => obj.Id == id);
@@ -103,7 +104,7 @@ namespace BulkyWeb.Controllers
             _unitOfWork.Category.Remove(category);
             _unitOfWork.Save();
             TempData["success"] = "Category deleted successfully";
-            return RedirectToAction("Index");            
+            return RedirectToAction("Index");
         }
     }
 }
