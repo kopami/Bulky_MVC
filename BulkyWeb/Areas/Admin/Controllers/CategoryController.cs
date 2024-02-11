@@ -94,7 +94,7 @@ namespace BulkyWeb.Areas.Admin.Controllers
             return View(categoryFromDb);
         }
         [HttpPost, ActionName("Delete")]
-        public IActionResult EditPost(int? id)
+        public IActionResult DeletePost(int? id)
         {
             Category? category = _unitOfWork.Category.Get(x => x.Id == id);
             if (category == null)
