@@ -6,6 +6,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using Bulky.DataAccess.Repository.IRepository;
 using Bulky.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -76,14 +77,15 @@ namespace BulkyWeb.Areas.Identity.Pages.Account.Manage
         {
             var userName = await _userManager.GetUserNameAsync(user);
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            var email = await _userManager.GetEmailAsync(user);
+            var email = await _userManager.GetEmailAsync(user);            
 
             Username = userName;
 
             Input = new InputModel
             {
                 PhoneNumber = phoneNumber,
-                Email = email,            
+                Email = email,
+                
             };
         }
 
