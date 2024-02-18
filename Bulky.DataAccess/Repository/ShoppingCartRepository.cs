@@ -23,6 +23,4 @@ namespace Bulky.DataAccess.Repository
             _db.ShoppingCarts.Update(obj);
         }
     }
-    {
-    }
 }
