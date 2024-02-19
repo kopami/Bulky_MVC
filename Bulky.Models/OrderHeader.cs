@@ -33,7 +33,7 @@ namespace Bulky.Models
         [Required]
         public string Name { get; set; } = null!;
         [Required]
-        public string PhoneNumer { get; set; } = null!;
+        public string PhoneNumber { get; set; } = null!;
         [Required]
         public string StreetAddress { get; set; } = null!;
         [Required]
