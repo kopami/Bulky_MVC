@@ -113,10 +113,11 @@ namespace BulkyWeb.Areas.Customer.Controllers
 
             ShoppingCartVM.OrderHeader.OrderDate = DateTime.Now;
 			ShoppingCartVM.OrderHeader.ApplicationUserId = userId;
-
-			ShoppingCartVM.OrderHeader.ApplicationUser = _unitOfWork.ApplicationUser.Get(u => u.Id == userId);
             //other properties was populated automatically in Input form
-			
+
+            //ShoppingCartVM.OrderHeader.ApplicationUser = _unitOfWork.ApplicationUser.Get(u => u.Id == userId);
+            //if you add the navigation property in OrderHeader, it will add all the corresponding properties when you add the OrderHeader so we should not add it here
+            ApplicationUser? applicationUser = _unitOfWork.ApplicationUser.Get(u => u.Id == userId); ;
 
 
 			foreach (var cart in ShoppingCartVM.ShoppingCartList)
@@ -125,7 +126,7 @@ namespace BulkyWeb.Areas.Customer.Controllers
 				ShoppingCartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
 			}
 
-            if (ShoppingCartVM.OrderHeader.ApplicationUser.CompanyId.GetValueOrDefault() == 0)
+            if (applicationUser.CompanyId.GetValueOrDefault() == 0)
             {
 				//it is a regular customer account and we need to capture the payment
                 ShoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusPending;
@@ -153,7 +154,17 @@ namespace BulkyWeb.Areas.Customer.Controllers
 				_unitOfWork.OrderDetail.Add(orderDetail);
                 _unitOfWork.Save();
 			}
-			return View(ShoppingCartVM);
+			if (applicationUser.CompanyId.GetValueOrDefault() == 0)
+            {
+                //it is a regular customer account and we need to capture the payment
+                //stripe logic
+            }
+			return RedirectToAction(nameof(OrderConfirmation), new { id = ShoppingCartVM.OrderHeader.Id});
+		}
+
+        public IActionResult OrderConfirmation(int id)
+        {
+			return View(id);
 		}
 
         private double GetPriceBasedOnQuantity(ShoppingCart shoppingCart)
