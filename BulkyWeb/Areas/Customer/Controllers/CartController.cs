@@ -4,6 +4,8 @@ using Bulky.Models.ViewModels;
 using Bulky.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Stripe.Checkout;
+using System.Net;
 using System.Security.Claims;
 
 namespace BulkyWeb.Areas.Customer.Controllers
@@ -158,7 +160,47 @@ namespace BulkyWeb.Areas.Customer.Controllers
             {
                 //it is a regular customer account and we need to capture the payment
                 //stripe logic
-            }
+
+                var domain = "https://localhost:7203/";
+				var options = new SessionCreateOptions
+				{
+					SuccessUrl = domain + $"customer/cart/OrderConfirmation?id={ShoppingCartVM.OrderHeader.Id}",
+                    CancelUrl = domain + "customer/cart/index",
+					LineItems = new List<SessionLineItemOptions>(),
+					Mode = "payment",
+				};
+
+                foreach (var item in ShoppingCartVM.ShoppingCartList) 
+                    //add each product in the cart to the stripe session
+                {
+                    var sessionLineItem = new SessionLineItemOptions
+                    {
+						PriceData = new SessionLineItemPriceDataOptions
+                        {
+							Currency = "usd",
+							UnitAmount = (long)(item.Price * 100), //$20.50 -> 2050
+							ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+								Name = item.Product.Title,								
+							}
+						},
+                        Quantity = item.Count,
+					};
+                    options.LineItems.Add(sessionLineItem);
+                    
+                }
+
+				var service = new SessionService();
+				Session session = service.Create(options); 
+                //create the stripe session but need a variable also to store the session in server side
+
+                _unitOfWork.OrderHeader.UpdateStripePaymentId(ShoppingCartVM.OrderHeader.Id, session.Id, session.PaymentIntentId); //PaymentIntentId null right here
+                //because it is only populated when payment is successfull
+
+                _unitOfWork.Save();
+                Response.Headers.Add("Location", session.Url);
+                return new StatusCodeResult((int)HttpStatusCode.RedirectMethod);
+			}
 			return RedirectToAction(nameof(OrderConfirmation), new { id = ShoppingCartVM.OrderHeader.Id});
 		}
 

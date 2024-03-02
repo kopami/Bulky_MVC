@@ -131,7 +131,7 @@ namespace BulkyWeb.Areas.Admin.Controllers
             }
             //delete the old image
             var oldImagePath =
-                        Path.Combine(_webHostEnvironment.WebRootPath,                       productToBeDeleted.ImageUrl.TrimStart('\\'));
+                        Path.Combine(_webHostEnvironment.WebRootPath, productToBeDeleted.ImageUrl.TrimStart('\\'));
 
             if (System.IO.File.Exists(oldImagePath))
             {
