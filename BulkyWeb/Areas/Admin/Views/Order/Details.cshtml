@@ -36,8 +36,8 @@
                                     }
                                     else
                                     {
-                                        <input asp-for="OrderHeader.Name" readonly type="text" class="form-control" />                 
-                                    }                                    
+                                        <input asp-for="OrderHeader.Name" readonly type="text" class="form-control" />
+                                    }
                                 </div>
                             </div>
                             <div class="row my-1">
@@ -127,7 +127,7 @@
                                 <div class="col-9">
                                     @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee))
                                     {
-                                        <input asp-for="OrderHeader.Carrier" type="text" class="form-control" />                       
+                                        <input asp-for="OrderHeader.Carrier" type="text" class="form-control" />
                                     }
                                     else
                                     {
@@ -184,7 +184,7 @@
                                         <input value="@Model.OrderHeader.PaymentDate.ToShortDateString()" readonly type="text" class="form-control" />
                                     </div>
                                 }
-                                
+
                             </div>
                             <div class="row my-1">
                                 <div class="col-3">Payment Status</div>
@@ -197,7 +197,7 @@
                             {
                                 <button type="submit" asp-action="UpdateOrderDetails" class="btn btn-warning form-control my-1">Update Order Details</button>
                             }
-                            
+
                         </div>
                         <div class="col-12 col-lg-5 offset-lg-1">
                             <h4 class="d-flex justify-content-between align-items-center mb-3">
@@ -224,7 +224,7 @@
                                         </div>
                                     </li>
                                 }
-                                
+
 
                                 <li class="list-group-item bg-primary">
                                     <div class="row container">
@@ -237,10 +237,29 @@
                                     </div>
                                 </li>
                             </ul>
-                            <input type="submit" class="btn btn-success form-control my-1" value="Pay Now" />
-                            <input type="submit" class="btn btn-primary form-control my-1" value="Start Processing" />
-                            <input type="submit" class="btn btn-primary form-control my-1" value="Ship Order" />
-                            <input type="submit" class="btn btn-danger form-control my-1" value="Cancel Order" />
+                            @if (Model.OrderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment
+                            && Model.OrderHeader.OrderStatus == SD.StatusShipped)
+                            {
+                                <button type="submit" class="btn btn-success form-control my-1">Pay Now</button>
+                            }
+                            @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee))
+                            {
+                                if (Model.OrderHeader.OrderStatus == SD.StatusApproved)
+                                {
+                                    <button type="submit" class="btn btn-primary form-control my-1">Start Processing</button>
+                                }
+                                if (Model.OrderHeader.OrderStatus == SD.StatusInProcess)
+                                {
+                                    <button type="submit" class="btn btn-primary form-control my-1">Ship Order</button>
+                                }
+                                if (Model.OrderHeader.OrderStatus != SD.StatusRefunded
+                                && Model.OrderHeader.OrderStatus != SD.StatusCancelled
+                                && Model.OrderHeader.OrderStatus != SD.StatusShipped)
+                                {
+                                    <button type="submit" class="btn btn-danger form-control my-1">Cancel Order</button>
+                                }
+                                
+                            }
                         </div>
                     </div>
                 </div>
