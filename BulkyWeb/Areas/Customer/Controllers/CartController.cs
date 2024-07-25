@@ -56,6 +56,9 @@ namespace BulkyWeb.Areas.Customer.Controllers
             {
                 //remove that from cart
                 _unitOfWork.ShoppingCart.Remove(cartFromDb);
+                //update session
+                HttpContext.Session.SetInt32(SD.SessionCart, _unitOfWork.ShoppingCart.GetAll(
+                    cart => cart.ApplicationUserId == cartFromDb.ApplicationUserId).Count() - 1);
             }
             else
             {
@@ -70,6 +73,9 @@ namespace BulkyWeb.Areas.Customer.Controllers
         {
             var cartFromDb = _unitOfWork.ShoppingCart.Get(c => c.Id == cartId);
             _unitOfWork.ShoppingCart.Remove(cartFromDb);
+            //update session
+            HttpContext.Session.SetInt32(SD.SessionCart, _unitOfWork.ShoppingCart.GetAll(
+                cart => cart.ApplicationUserId == cartFromDb.ApplicationUserId).Count() - 1);
             _unitOfWork.Save();
             return RedirectToAction(nameof(Index));
         }
@@ -161,8 +167,8 @@ namespace BulkyWeb.Areas.Customer.Controllers
                 //it is a regular customer account and we need to capture the payment
                 //stripe logic
 
-                var domain = "https://localhost:7203/";
-				var options = new SessionCreateOptions
+                var domain = Request.Scheme + "://" + Request.Host.Value + "/";
+                var options = new SessionCreateOptions
 				{
 					SuccessUrl = domain + $"customer/cart/OrderConfirmation?id={ShoppingCartVM.OrderHeader.Id}",
                     CancelUrl = domain + "customer/cart/index",
@@ -219,6 +225,7 @@ namespace BulkyWeb.Areas.Customer.Controllers
 					_unitOfWork.OrderHeader.UpdateStripePaymentId(id, session.Id, session.PaymentIntentId);
                     _unitOfWork.OrderHeader.UpdateStatus(id, SD.StatusApproved, SD.PaymentStatusApproved);
                     _unitOfWork.Save();
+                    HttpContext.Session.Clear();
 				}
             }
             //after that, remove the shopping cart
